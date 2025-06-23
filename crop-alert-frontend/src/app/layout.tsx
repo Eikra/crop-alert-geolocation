@@ -5,6 +5,12 @@ import ReactQueryProvider from '@/lib/ReactQueryProvider'
 import { AuthProvider } from '@/context/AuthContext';
 
 
+import Link from 'next/link';
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+
+
+
 const inter = Inter({ subsets: ['latin'] })
 import React from 'react';
 
@@ -23,11 +29,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
-
-import Link from 'next/link';
-import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
-
 function NavBar() {
   const { user, setUser } = useAuth();
   const router = useRouter();

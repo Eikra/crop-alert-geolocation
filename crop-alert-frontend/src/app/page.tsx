@@ -77,17 +77,21 @@ export default function FeedPage() {
     }
   };
 
-  // Handle socket only after user is authenticated
-useEffect(() => {
-  if (!user) return;
+  // // Handle socket only after user is authenticated
+  // useEffect(() => {
+  //   if (!user) return;
 
-  const socket = io('http://localhost:3000');
-  socket.on('new_alert', fetchAlerts);
+  //   const socket = io(process.env.BACKEND_URL!, {
+  //     transports: ['websocket'],  // force websocket instead of polling
+  //     withCredentials: true,
+  //   });
 
-  return () => {
-    socket.disconnect();
-  };
-}, [user]);
+  //   socket.on('new_alert', fetchAlerts);
+
+  //   return () => {
+  //     socket.disconnect();
+  //   };
+  // }, [user]);
 
 
   // Recenter button with Permissions API check

@@ -2,17 +2,24 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { IoAdapter } from '@nestjs/platform-socket.io';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
+
   const configService = app.get(ConfigService);
-  const frontendUrl = configService.get<string>('FRONTEND_URL');
+  const allowedOrigins = [
+    configService.get<string>('FRONTEND_URL'),
+    configService.get<string>('FRONTEND_URL_STAGING'),
+  ].filter(Boolean);  // remove undefined if any
 
   app.enableCors({
-    origin: [frontendUrl],  // Use env variable here ✅
+    origin: (origin, callback) => {
+      callback(null, true);  // allow all origins dynamically
+    },
     credentials: true,
   });
+
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -20,8 +27,11 @@ async function bootstrap() {
     }),
   );
 
-  const port = configService.get<number>('PORT_FRONT') || 3001;
-  await app.listen(port);
+  app.useWebSocketAdapter(new IoAdapter(app));
+
+  const port = configService.get<number>('PORT_BCKEND') || 3000;
+  // await app.listen(port);
+  await app.listen(port, '0.0.0.0');
   console.log(`🚀 Server is running on port ${port}`);
 }
 bootstrap();

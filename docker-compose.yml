@@ -27,6 +27,7 @@ services:
 
   backend:
     build: ./nestjs-api/
+    image: crop-alert-geolocation-backend
     container_name: CropAlerAPI
     restart: unless-stopped
     ports:
@@ -42,6 +43,7 @@ services:
 
   frontend:
     build: ./crop-alert-frontend/  # <-- adjust path if needed
+    image: crop-alert-geolocation-frontend
     container_name: CropAlertFrontend
     restart: unless-stopped
     ports:
@@ -57,7 +59,8 @@ services:
 
 volumes:
   postgres_data:
-  postgres_data_test:
+    name: CropAlert_data
+    driver: local
 
 networks:
   CropAlertNetwork:

@@ -1,7 +1,10 @@
 import axios from 'axios';
 
+const backendUrl = process.env.BACKEND_URL || 'http://localhost:3000';
+
+
 export const authApi = axios.create({
-  baseURL: 'http://localhost:3000', // Your backend URL
+  baseURL: backendUrl, // Dynamically use env variable
 });
 
 // Request interceptor — still works like before
@@ -26,7 +29,7 @@ authApi.interceptors.response.use(
         const refreshToken = localStorage.getItem('refresh_token');
         if (!refreshToken) throw new Error("No refresh token");
 
-        const res = await axios.post('http://localhost:3000/auth/refresh', {
+        const res = await axios.post(`${backendUrl}/auth/refresh`, {
           refresh_token: refreshToken
         });
 

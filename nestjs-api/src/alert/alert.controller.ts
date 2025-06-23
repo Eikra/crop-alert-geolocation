@@ -42,7 +42,6 @@ export class AlertController {
     @GetUser('id') userId: number,
     @Body() dto: CreateAlertDto,
   ) {
-    console.log('Creating alert with data:', dto);
     return this.alertService.createAlert(userId, dto);
   }
 

@@ -82,7 +82,6 @@ export class AlertService {
 
   async findNearby(dto: NearbyAlertsDto) {
     const { lat, lng, radius, crops } = dto;
-    console.log('Finding nearby alerts with params:', dto);
 
     if (radius <= 0) {
       throw new ForbiddenException('Radius must be greater than zero');
@@ -92,7 +91,6 @@ export class AlertService {
 
     const cached = await this.cacheManager.get(cacheKey);
     if (cached) {
-      console.log('✅ Returning cached nearby alerts');
       return cached;
     }
 
@@ -124,7 +122,6 @@ export class AlertService {
   }
 
   private async invalidateNearbyCache() {
-    console.log('🚀 Cache version bumped');
     await this.redisClient.incr('nearby:version');
   }
 }
