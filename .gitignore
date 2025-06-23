@@ -1,0 +1,7 @@
+# compiled output
+# /dist
+/nestjs-api/node_modules
+/build
+.DS_Store
+
+/crop-alert-frontend/node_modules

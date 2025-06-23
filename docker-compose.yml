@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgis/postgis:15-3.3
+    container_name: postgres_db
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - CropAlertNetwork
+
+
+  redis:
+    image: redis:7
+    container_name: redis_cache
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - CropAlertNetwork
+
+
+  backend:
+    build: ./nestjs-api/
+    container_name: CropAlerAPI
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+      - redis
+      # - postgresTest
+    env_file:
+      - .env.docker
+    networks:
+      - CropAlertNetwork
+
+  frontend:
+    build: ./crop-alert-frontend/  # <-- adjust path if needed
+    container_name: CropAlertFrontend
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - .env.docker
+    depends_on:
+      - backend
+    networks:
+      - CropAlertNetwork
+    
+
+
+volumes:
+  postgres_data:
+  postgres_data_test:
+
+networks:
+  CropAlertNetwork:
+    driver: bridge

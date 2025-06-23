@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             Int       @id @default(autoincrement())
+  userId         String    @unique @default(uuid())
+  email          String    @unique
+  password       String
+  firstName      String?
+  lastName       String?
+  subscribedCrops String[] @default([])
+  role           UserRole  @default(FARMER)
+  alerts         Alert[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@map("users")
+}
+
+model Alert {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  latitude    Float
+  longitude   Float
+  crops       String[] @default([])
+  severity    Severity @default(MEDIUM)
+  creatorId   Int
+  creator     User     @relation(fields: [creatorId], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@map("alerts")
+}
+
+enum UserRole {
+  AGRONOMIST
+  FARMER
+}
+
+enum Severity {
+  LOW
+  MEDIUM
+  HIGH
+}
