@@ -17,12 +17,13 @@ CropAlert is a collaborative platform designed to connect agronomists and farmer
 ## Features
 - **User Authentication**: Supports two roles (Agronomist and Farmer) with JWT-based authentication, including signup, signin, and refresh token mechanisms.
 - **Alert Creation**: Agronomists can create geolocalized alerts with details such as title, description, crops, severity, and coordinates.
+- **Search Nearby Alerts**: Farmers can search alerts by geolocation (latitude, longitude), radius, and targeted crops, with real-time filtering and Redis caching for optimization.
 - **Real-Time Notifications**: Uses WebSocket (Socket.IO) to broadcast new alerts to users within a specified radius.
 - **Interactive Map**: Displays alerts on a Leaflet-based map, with dynamic centering and filtering by location and crops.
 - **Feed Filtering**: Farmers can filter alerts by geolocation (latitude, longitude, radius) and specific crops.
 - **Mobile-Friendly UX**: Responsive design with Tailwind CSS, optimized for mobile devices.
 - **Security**: Includes JWT authentication, role-based access control, input validation, and secure password hashing with Argon2.
-- **Caching**: Implements Redis for caching nearby alert queries to improve performance.
+- **Robust Backend Architecture**: Built with NestJS, Prisma, PostgreSQL with PostGIS, Redis caching, and Socket.IO for real-time communication.
 
 ## Tech Stack
 ### Backend
