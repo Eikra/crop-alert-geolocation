@@ -1,240 +1,130 @@
-# NestJS Todo API with Authentication
+# CropAlert
 
-This project is a RESTful API for a Todo application built as part of a Backend Developer Internship project. It uses **NestJS**, **TypeScript**, **Prisma ORM** with **PostgreSQL**, and **Redis** for caching. The API includes user authentication, todo management, and follows best practices for security, performance, and code quality.
+CropAlert is a collaborative platform designed to connect agronomists and farmers, enabling agronomists to publish geolocalized agricultural alerts and farmers to receive real-time notifications tailored to their location and crops. This project was developed as part of an internship application technical test, meeting the requirements for a Minimum Viable Product (MVP) with a focus on real-time notifications, geolocation, and a mobile-friendly user experience.
 
 ## Table of Contents
-- [Project Overview](#project-overview)
-- [Technical Stack](#technical-stack)
 - [Features](#features)
-- [Setup Instructions](#setup-instructions)
-- [API Documentation](#api-documentation)
-- [Running Tests](#running-tests)
-- [Project Structure](#project-structure)
-- [Environment Variables](#environment-variables)
+- [Tech Stack](#tech-stack)
+- [Architecture](#architecture)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Demo](#demo)
+- [Screenshots](#screenshots)
+- [Evaluation Criteria](#evaluation-criteria)
 - [Contributing](#contributing)
 - [License](#license)
 
-## Project Overview
-This project implements a Todo API with user authentication, allowing users to register, log in, manage their profiles, and perform CRUD operations on todo items. It incorporates JWT-based authentication, Redis caching for performance, and comprehensive testing to ensure reliability.
-
-## Technical Stack
-- **NestJS**: Framework for building the API
-- **TypeScript**: For type safety and improved developer experience
-- **Prisma**: ORM for database operations with PostgreSQL
-- **PostgreSQL**: Primary database
-- **Redis**: In-memory caching for frequently accessed data
-- **ESLint**: For code quality and consistency
-- **Jest**: For unit and integration testing
-
 ## Features
-- **Users Module**:
-  - User registration and profile management
-  - Password hashing using Argon2
-  - User profile updates
-- **Authentication Module**:
-  - JWT-based authentication
-  - Sign-up and sign-in functionality
-  - Token-based authorization
-- **Todo Module**:
-  - CRUD operations for todo items
-  - Filtering and sorting capabilities
-  - Todo completion status management
-- **Caching**:
-  - Redis caching for todo lists
-  - Cache invalidation on create, update, or delete operations
-- **Security**:
-  - Input validation and sanitization
-  - Protection against common vulnerabilities (e.g., CSRF, XSS)
-  - Rate limiting (configured but not implemented in this version)
-- **Testing**:
-  - Unit tests for services
-  - End-to-end tests for API endpoints
-  - Minimum 80% test coverage
-- **Documentation**:
-  - Comprehensive API documentation (see below)
-  - Clear code comments and organized project structure
+- **User Authentication**: Supports two roles (Agronomist and Farmer) with JWT-based authentication, including signup, signin, and refresh token mechanisms.
+- **Alert Creation**: Agronomists can create geolocalized alerts with details such as title, description, crops, severity, and coordinates.
+- **Real-Time Notifications**: Uses WebSocket (Socket.IO) to broadcast new alerts to users within a specified radius.
+- **Interactive Map**: Displays alerts on a Leaflet-based map, with dynamic centering and filtering by location and crops.
+- **Feed Filtering**: Farmers can filter alerts by geolocation (latitude, longitude, radius) and specific crops.
+- **Mobile-Friendly UX**: Responsive design with Tailwind CSS, optimized for mobile devices.
+- **Security**: Includes JWT authentication, role-based access control, input validation, and secure password hashing with Argon2.
+- **Caching**: Implements Redis for caching nearby alert queries to improve performance.
 
-## Setup Instructions
+## Tech Stack
+### Backend
+- **NestJS**: Framework for building scalable server-side applications.
+- **Prisma**: ORM for PostgreSQL database management with PostGIS for geolocation.
+- **Redis**: Used for caching and managing cache invalidation.
+- **Socket.IO**: Enables real-time WebSocket communication.
+- **JWT**: For secure authentication and authorization.
+- **Argon2**: For password hashing.
+- **Docker**: Containerization for PostgreSQL, Redis, and the backend application.
+
+### Frontend
+- **Next.js**: React framework for server-side rendering and static site generation.
+- **React-Leaflet**: For rendering interactive maps.
+- **Tailwind CSS**: For responsive and modern UI styling.
+- **React Query**: For managing server-state and API calls.
+- **Socket.IO Client**: For receiving real-time alerts.
+- **Axios**: For HTTP requests with token refresh handling.
+
+### Database
+- **PostgreSQL with PostGIS**: For storing user data and geolocalized alerts.
+
+## Architecture
+The application follows a microservices-inspired modular architecture:
+- **Backend**: A NestJS application with modules for authentication, user management, alerts, and WebSocket communication. Prisma integrates with PostgreSQL/PostGIS for spatial queries, and Redis handles caching.
+- **Frontend**: A Next.js application with client-side rendering for dynamic pages, using React Query for data fetching and Socket.IO for real-time updates.
+- **Real-Time**: Socket.IO enables agronomists' alerts to be broadcast to farmers within a specified geolocation radius.
+- **Geolocation**: PostGIS powers spatial queries for finding nearby alerts, and Leaflet renders them on an interactive map.
+- **Deployment**: Docker Compose orchestrates PostgreSQL, Redis, backend, and frontend containers.
+
+## Installation
 ### Prerequisites
-- **Docker** and **Docker Compose**: For running PostgreSQL and Redis
-- **Node.js**: Version 20 or higher
-- **Yarn**: Version 4.9.1 (managed via Corepack)
-- **Git**: For cloning the repository
+- Docker and Docker Compose
+- Node.js (v20 or higher)
+- Yarn (v4.9.1)
+- Git
 
 ### Steps
-1. **Clone the Repository**:
+1. **Clone the Repository**
    ```bash
-   git clone <repository-url>
-   cd nestjs-todo-app
+   git clone https://github.com/Eikra/crop-alert-geolocation.git
+   cd cropalert
    ```
 
-2. **Install Dependencies**:
+2. **Set Up Environment Variables**
+   - Copy the `.env.example` file in `nestjs-api` to `.env` and update values as needed (e.g., `DATABASE_URL`, `JWT_SECRET`).
+   - Ensure the `.env.docker` file is configured for Docker Compose.
+
+3. **Start Services**
    ```bash
-   corepack enable
-   corepack prepare yarn@4.9.1 --activate
-   cd nestjs-api
-   yarn install --immutable
+   make all
    ```
+   This command builds and starts the PostgreSQL, Redis, backend, and frontend containers using Docker Compose.
 
-3. **Set Up Environment Variables**:
-   Create a `.env` file in the `nestjs-api` directory based on the provided `.env.example`:
-   ```env
-   DATABASE_URL=postgresql://user:password@localhost:5432/nestdb?schema=public
-   REDIS_HOST=localhost
-   REDIS_PORT=6379
-   JWT_SECRET=your_jwt_secret_key
-   JWT_REFRESH_SECRET=jwt_refresh_super_secret
-   PORT=3000
-   ```
-
-4. **Start Services with Docker**:
-   ```bash
-   make start
-   ```
-
-5. **Run Database Migrations**:
+4. **Run Prisma Migrations**
    ```bash
    make migrate
    ```
+   This generates the Prisma client and applies database migrations.
 
-6. **Start the Application**:
-   - For production:
-     ```bash
-     make start
-     ```
-   - For development (with hot-reload):
-     ```bash
-     make start-dev
-     ```
+5. **Access the Application**
+   - Backend: `http://localhost:3000`
+   - Frontend: `http://localhost:3001`
 
-7. **Access the API**:
-   The API will be available at `http://localhost:3000`.
+## Usage
+1. **Sign Up**: Create an account as either an Agronomist or Farmer.
+2. **Sign In**: Log in to access the dashboard.
+3. **Create Alerts (Agronomists)**: Navigate to the "Create Alert" page to publish a new alert with geolocation and crop details.
+4. **View Alerts (Farmers)**: Use the feed page to filter alerts by location and crops, and view them on the interactive map.
+5. **Real-Time Updates**: New alerts are automatically displayed via WebSocket notifications.
+6. **Manage Alerts (Agronomists)**: Edit or delete your alerts from the "My Alerts" page.
 
-8. **View Logs**:
-   ```bash
-   make logs
-   ```
+## Demo
+- **Live Demo**: (in progress)
+- **Video Tutorial**: (in progress)
 
-9. **Stop Services**:
-   ```bash
-   make stop_db
-   ```
+## Screenshots
+- **Login Page**:
+  ![Login Page](screenshots/login.png)
+- **Feed Page with Map**:
+  ![Feed Page](screenshots/feed.png)
+- **Create Alert Page**:
+  ![Create Alert](screenshots/create-alert.png)
 
-10. **Clean Up**:
-    To remove containers and volumes:
-    ```bash
-    make clean_db
-    ```
+*(Note: Replace `screenshots/` with actual paths if you include images in the repo.)*
 
-## API Documentation
-The API follows RESTful principles with proper HTTP methods and status codes. Below are the main endpoints:
-
-### Authentication
-- **POST /auth/signup**
-  - Body: `{ "email": "string", "password": "string" }`
-  - Response: `201 Created` with user data (excluding password)
-  - Description: Registers a new user
-- **POST /auth/signin**
-  - Body: `{ "email": "string", "password": "string" }`
-  - Response: `200 OK` with `{ "access_token": "string" }`
-  - Description: Authenticates a user and returns a JWT
-
-### Users
-- **GET /users/me**
-  - Headers: `Authorization: Bearer <token>`
-  - Response: `200 OK` with user data
-  - Description: Retrieves the authenticated user's profile
-- **PATCH /users**
-  - Headers: `Authorization: Bearer <token>`
-  - Body: `{ "email": "string", "firstName": "string", "lastName": "string" }` (all optional)
-  - Response: `200 OK` with updated user data
-  - Description: Updates the authenticated user's profile
-
-### Todos
-- **GET /todos**
-  - Headers: `Authorization: Bearer <token>`
-  - Response: `200 OK` with array of todos
-  - Description: Retrieves all todos for the authenticated user
-- **GET /todos/:id**
-  - Headers: `Authorization: Bearer <token>`
-  - Response: `200 OK` with single todo
-  - Description: Retrieves a specific todo by ID
-- **POST /todos**
-  - Headers: `Authorization: Bearer <token>`
-  - Body: `{ "title": "string", "description": "string" }` (description optional)
-  - Response: `201 Created` with created todo
-  - Description: Creates a new todo
-- **PATCH /todos/:id**
-  - Headers: `Authorization: Bearer <token>`
-  - Body: `{ "title": "string", "description": "string", "completed": boolean }` (all optional)
-  - Response: `200 OK` with updated todo
-  - Description: Updates a specific todo
-- **DELETE /todos/:id**
-  - Headers: `Authorization: Bearer <token>`
-  - Response: `204 No Content`
-  - Description: Deletes a specific todo
-
-## Running Tests
-The project includes unit and end-to-end tests with Jest and Pactum.
-
-1. **Start the Test Database**:
-   ```bash
-   make test
-   ```
-
-2. **Run Tests**:
-   ```bash
-   cd nestjs-api
-   yarn test
-   ```
-
-3. **Run End-to-End Tests**:
-   ```bash
-   yarn test:e2e
-   ```
-
-4. **Check Test Coverage**:
-   ```bash
-   yarn test:cov
-   ```
-
-## Project Structure
-```
-nestjs-todo-app/
-├── nestjs-api/
-│   ├── src/
-│   │   ├── auth/
-│   │   ├── prisma/
-│   │   ├── todo/
-│   │   ├── user/
-│   │   ├── app.controller.ts
-│   │   ├── app.module.ts
-│   │   ├── app.service.ts
-│   │   └── main.ts
-│   ├── test/
-│   │   └── app.e2e-spec.ts
-│   ├── Dockerfile
-│   ├── docker-compose.yml
-│   ├── .env
-│   └── package.json
-├── Makefile
-└── README.md
-```
-
-## Environment Variables
-The application uses the following environment variables:
-- `DATABASE_URL`: PostgreSQL connection string (e.g., `postgresql://user:password@localhost:5432/nestdb?schema=public`)
-- `REDIS_HOST`: Redis host (default: `localhost`)
-- `REDIS_PORT`: Redis port (default: `6379`)
-- `JWT_SECRET`: Secret key for JWT signing
-- `PORT`: Application port (default: `3000`)
+## Evaluation Criteria
+The project was designed to meet the technical test's evaluation criteria:
+- **Real-Time Architecture (30%)**: Implemented with Socket.IO for broadcasting alerts to users in specific geolocation rooms.
+- **Geolocation (20%)**: Uses PostGIS for spatial queries and Leaflet for map visualization, with geolocation-based filtering.
+- **Collaborative UX (20%)**: Responsive, intuitive UI with role-based navigation and mobile optimization.
+- **Data Modeling (15%)**: Prisma schema with `User` and `Alert` models, including enums for roles and severity, and PostGIS for geospatial data.
+- **Security (10%)**: JWT authentication, role-based guards, input validation, and Argon2 password hashing.
+- **Innovation (5%)**: Redis caching for performance, WebSocket room-based notifications, and a clean, modular architecture.
 
 ## Contributing
+Contributions are welcome! Please follow these steps:
 1. Fork the repository.
 2. Create a new branch (`git checkout -b feature/your-feature`).
-3. Make changes and commit (`git commit -m "Add your feature"`).
+3. Commit your changes (`git commit -m 'Add your feature'`).
 4. Push to the branch (`git push origin feature/your-feature`).
-5. Create a pull request.
+5. Open a Pull Request.
 
 ## License
-This project is licensed under the MIT License.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

@@ -11,8 +11,8 @@ const Map = dynamic(() => import('@/components/Map'), { ssr: false });
 
 export default function FeedPage() {
   const { user } = useAuth();
-  const DEFAULT_LAT = 32.24337484258097;
-  const DEFAULT_LNG = -7.947736927819076;
+  const DEFAULT_LAT = 32.31114256277022;
+  const DEFAULT_LNG = -8.431543987363533
   const DEFAULT_RADIUS = 10;
 
   const [alerts, setAlerts] = useState<any[]>([]);
@@ -77,21 +77,21 @@ export default function FeedPage() {
     }
   };
 
-  // // Handle socket only after user is authenticated
-  // useEffect(() => {
-  //   if (!user) return;
+  // Handle socket only after user is authenticated
+  useEffect(() => {
+    if (!user) return;
 
-  //   const socket = io(process.env.BACKEND_URL!, {
-  //     transports: ['websocket'],  // force websocket instead of polling
-  //     withCredentials: true,
-  //   });
+    const socket = io(process.env.BACKEND_URL!, {
+      transports: ['websocket'],  // force websocket instead of polling
+      withCredentials: true,
+    });
 
-  //   socket.on('new_alert', fetchAlerts);
+    socket.on('new_alert', fetchAlerts);
 
-  //   return () => {
-  //     socket.disconnect();
-  //   };
-  // }, [user]);
+    return () => {
+      socket.disconnect();
+    };
+  }, [user]);
 
 
   // Recenter button with Permissions API check

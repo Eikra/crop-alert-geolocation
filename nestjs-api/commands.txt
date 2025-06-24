@@ -1,4 +1,12 @@
-nvm install 20.11.1
+npx create-next-app@13.4 NextFrontend --typescript
+npm i -g create-next-app
+pm install -D @tailwindcss/postcss
+npm install jwt-decode
+npm install qs
+npm install leaflet-defaulticon-compatibility
+npm install react-leaflet@latest leaflet@latest @types/leaflet@latest
+----------------------------------
+    nvm install 20.11.1
 nvm use 20.11.1
 npm install -g @nestjs/cli
 nest new nestjs-api
